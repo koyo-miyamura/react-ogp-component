@@ -9,14 +9,23 @@ type OgpData = {
 }
 
 const IndexPage = () => {
-  const url = "https://github.com/koyo-miyamura"
-  const {data} = useSWR<OgpData>(`/api/ogp?url=${url}`)
+  const githubUrl = "https://github.com/koyo-miyamura"
+  const {data: githubData, error: githubError} = useSWR<OgpData>(`/api/ogp?url=${githubUrl}`)
 
-  console.log(data)
+  const pocketUrl = "https://koshien-pocket.kayac.com/"
+  const {data: pocketData, error: pocketError} = useSWR<OgpData>(`/api/ogp?url=${pocketUrl}`)
+
+  if (githubError || pocketError) return <div>failed to load</div>
+  if (!githubData || !pocketData) return <div>loading...</div>
 
   return (
     <Layout title="Home | Next.js + TypeScript Example">
-      <ProfileCard title={data?.title} imageUrl={data?.image} content={data?.description} />
+      <div className="lg:flex items-center container mx-auto my-auto">
+      {[githubData, pocketData].map(
+          (data, i) => <ProfileCard key={String(i)} title={data?.title} imageUrl={data?.image} content={data?.description} />
+        )
+      }
+      </div>
     </Layout>
   )
 }
